@@ -1,36 +1,54 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface User {
-  name: string;
-  email: string;
-  password: string;
+	name: string;
+	email: string;
+	password: string;
 }
+
+interface UserState {
+	users: User[];
+	loggedInUser: User | null;
+	status: "loggedIn" | "loggedOut";
+}
+
+const initialState: UserState = {
+	users: [],
+	loggedInUser: null,
+	status: "loggedOut",
+};
+
 const userSlice = createSlice({
-  name: "user",
-  initialState: {
-    users: [],
-    loggedInUser: null,
-    status: "loggedOut",
-  },
-  reducers: {
-    register: () => {
-      // Implement user registration logic here
-    },
-    login: (state, action) => {
-      const user = state.users.find(
-        (user: User) =>
-          user.email === action.payload.email &&
-          user.password === action.payload.password
-      );
-      if (user) {
-        state.loggedInUser = user;
-        state.status = "loggedIn";
-      }
-    },
-    logout: () => {
-      // Implement user logout logic here
-    },
-  },
+	name: "user",
+	initialState,
+	reducers: {
+		register: (state, action: PayloadAction<User>) => {
+			const { name, email, password } = action.payload;
+			const user = state.users.find(
+				(user: User) =>
+					user.email === action.payload.email &&
+					user.password === action.payload.password
+			);
+			if (!user) {
+				state.users.push({ name, email, password });
+			}
+		},
+		login: (state, action) => {
+			const user = state.users.find(
+				(user: User) =>
+					user.email === action.payload.email &&
+					user.password === action.payload.password
+			);
+			if (user) {
+				state.loggedInUser = user;
+				state.status = "loggedIn";
+			}
+		},
+		logout: (state) => {
+			state.loggedInUser = null;
+			state.status = "loggedOut";
+		},
+	},
 });
 
 export const { login, logout, register } = userSlice.actions;
